@@ -1,0 +1,72 @@
+:root {
+  font-family: Inter, system-ui, Arial, sans-serif;
+  color: #111827;
+  background: #f3f4f6;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 24px auto;
+  padding: 0 16px;
+}
+
+.card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+input, select, button {
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  background: white;
+}
+
+button {
+  cursor: pointer;
+  border-color: #2563eb;
+  background: #2563eb;
+  color: white;
+}
+
+button.secondary {
+  background: white;
+  color: #111827;
+  border-color: #d1d5db;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+
+th, td {
+  text-align: left;
+  padding: 10px;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 14px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  border: 1px solid #e5e7eb;
+}
+
+.badge.open { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; }
+.badge.fraud { background: #fef2f2; border-color: #fecaca; color: #b91c1c; }
+.badge.fp { background: #f0fdf4; border-color: #bbf7d0; color: #15803d; }
+
+.muted { color: #6b7280; }
