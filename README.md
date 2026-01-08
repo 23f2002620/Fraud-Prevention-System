@@ -1,4 +1,4 @@
-# Real-time Fraud Prevention System (College Project)
+# Real-time Fraud Prevention System
 
 A secure, end-to-end real-time fraud detection prototype for digital financial transactions:
 Kafka → Flink real-time features → FastAPI scoring + case management → Vue dashboard.
