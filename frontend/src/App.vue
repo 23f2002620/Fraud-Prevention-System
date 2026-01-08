@@ -1,6 +1,8 @@
 <script setup>
 import { onMounted, ref } from "vue";
 import { getCases, updateCaseStatus, scoreTxn, createCase } from "./api";
+import { login } from "./api";
+
 
 const cases = ref([]);
 const statusFilter = ref("");
@@ -76,7 +78,19 @@ async function openCaseFromScore() {
   }
 }
 
-onMounted(refresh);
+onMounted(async () => {
+  try {
+    await login("admin", "admin123");
+    await refresh();
+  } catch (e) {
+    error.value = e.message || String(e);
+  }
+});
+
+
+
+
+
 </script>
 
 <template>

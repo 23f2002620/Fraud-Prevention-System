@@ -16,3 +16,10 @@ class Case(SQLModel, table=True):
     reasons: str = ""  # comma-separated for MVP
 
     created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class UsedNonce(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    api_key: str = Field(index=True)
+    nonce: str = Field(index=True)
+    ts_epoch: int = Field(index=True)

@@ -70,6 +70,9 @@ services:
     environment:
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - DATABASE_URL=postgresql+psycopg://fraud:fraud@postgres:5432/frauddb
+      - MLFLOW_MODEL_URI=models:/fraud_iforest/latest
+      - EVENT_SIGNING_SECRET=KAFKA_EVENT_SECRET_CHANGE_ME
+
     ports:
       - "8000:8000"
 
@@ -91,4 +94,22 @@ volumes:
         condition: service_healthy
     environment:
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - EVENT_SIGNING_SECRET=KAFKA_EVENT_SECRET_CHANGE_ME
+
     command: ["python", "-m", "app.generator"]
+
+
+
+  mlflow:
+    image: python:3.11-slim
+    container_name: mlflow
+    working_dir: /mlflow
+    volumes:
+      - ./mlruns:/mlflow/mlruns
+    ports:
+      - "8080:8080"
+    command: >
+      bash -lc "pip install --no-cache-dir mlflow==2.19.0 &&
+      mlflow server --host 0.0.0.0 --port 8080
+      --backend-store-uri file:/mlflow/mlruns
+      --default-artifact-root file:/mlflow/mlruns"
