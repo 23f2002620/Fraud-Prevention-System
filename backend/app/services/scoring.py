@@ -3,8 +3,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Optional
 
-from app.streaming.feature_cache import UserFeatures
-
 from app.schemas import TxnIn
 
 
@@ -32,41 +30,24 @@ class Scorer:
             except Exception:
                 self.model = None
 
-    def score(self, txn: TxnIn, feats: UserFeatures | None = None) -> ScoreResult:
+    def score(self, txn: TxnIn) -> ScoreResult:
         reasons: list[str] = []
         score = 0.0
 
-        # -------- existing rules --------
+        # Rule 1: very high amount (demo threshold)
         if txn.amount >= 50000:
             score += 0.55
             reasons.append("high_amount")
 
+        # Rule 2: suspicious country (example)
         if txn.country and txn.country.upper() not in {"IN", "INDIA"}:
             score += 0.25
             reasons.append("foreign_country")
 
+        # Rule 3: missing device/ip signals
         if not txn.device_id or not txn.ip:
             score += 0.10
             reasons.append("missing_device_or_ip")
-
-        # -------- NEW: streaming velocity features from Flink --------
-        if feats is not None:
-            # Rule: too many txns in last 60s
-            if feats.txn_count_60s >= 8:
-                score += 0.40
-                reasons.append("high_velocity_60s")
-
-            # Rule: high total in last 60s
-            if feats.total_amount_60s >= 100000:
-                score += 0.30
-                reasons.append("high_total_60s")
-
-            # Rule: avg size unusually high
-            if feats.avg_amount_60s >= 20000:
-                score += 0.20
-                reasons.append("high_avg_60s")
-        else:
-            reasons.append("no_stream_features_yet")
 
         # Optional ML: if model exists, blend it
         if self.model is not None:
@@ -74,13 +55,11 @@ class Scorer:
             import pandas as pd
 
             df = pd.DataFrame([{
-    "amount": float(txn.amount),
-    "has_device": 1 if txn.device_id else 0,
-    "has_ip": 1 if txn.ip else 0,
-    "txn_count_60s": int(feats.txn_count_60s) if feats else 0,
-    "total_amount_60s": float(feats.total_amount_60s) if feats else float(txn.amount),
-}])
-
+                "amount": txn.amount,
+                "country": (txn.country or ""),
+                "has_device": 1 if txn.device_id else 0,
+                "has_ip": 1 if txn.ip else 0,
+            }])
 
             try:
                 pred = self.model.predict(df)

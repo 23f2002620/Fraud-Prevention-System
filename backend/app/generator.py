@@ -4,12 +4,6 @@ import random
 import time
 from datetime import datetime, timezone
 from kafka import KafkaProducer
-import hmac
-import hashlib
-import os
-
-EVENT_SECRET = os.getenv("EVENT_SIGNING_SECRET", "KAFKA_EVENT_SECRET_CHANGE_ME").encode("utf-8")
-
 
 from app.streaming.topics import TXN_TOPIC
 
@@ -59,18 +53,7 @@ def main():
     i = 0
     while True:
         evt = synth_txn(i)
-        payload = json.dumps(evt, separators=(",", ":"), sort_keys=True).encode("utf-8")
-        sig = hmac.new(EVENT_SECRET, payload, hashlib.sha256).hexdigest().encode("utf-8")
-
-        producer.send(
-            TXN_TOPIC,
-            value=evt,
-            headers=[
-                ("x-sig", sig),
-                ("x-sig-alg", b"hmac-sha256"),
-            ],
-        )
-
+        producer.send(TXN_TOPIC, evt)
         producer.flush()
         print("sent:", evt)
         i += 1
